@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>URLパラメータの更新</title>
+</head>
+<body>
+    <button id="updateButton">URLを更新</button>
+
+    <script>
+        document.getElementById('updateButton').addEventListener('click', function() {
+            // 現在のURLを取得
+            let url = new URL(window.location.href);
+
+            // 新しいパラメータを追加または更新
+            url.searchParams.set('param1', 'newValue1');
+            url.searchParams.set('param2', 'newValue2');
+
+            // URLを更新
+            window.history.pushState({}, '', url);
+        });
+    </script>
+</body>
+</html>
