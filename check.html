@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>チェック画面</title>
+    <script>
+        function generateDummyResult() {
+            const selectedTask = localStorage.getItem('selectedTask');
+            const result = {
+                task: selectedTask,
+                status: 'OK',
+                details: 'This is a dummy result.'
+            };
+            document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            localStorage.setItem('checkResult', JSON.stringify(result));
+        }
+
+        function goToCompleteScreen() {
+            window.location.href = 'complete.html';
+        }
+
+        window.onload = generateDummyResult;
+    </script>
+</head>
+<body>
+    <h1>チェック画面</h1>
+    <pre id="result"></pre>
+    <button onclick="goToCompleteScreen()">完了</button>
+</body>
+</html>

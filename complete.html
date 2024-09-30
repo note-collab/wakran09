@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>完了画面</title>
+    <script>
+        function outputResult() {
+            const result = localStorage.getItem('checkResult');
+            const blob = new Blob([result], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            link.href = url;
+            link.download = 'result.json';
+        }
+
+        window.onload = outputResult;
+    </script>
+</head>
+<body>
+    <h1>完了画面</h1>
+    <a id="downloadLink">Download Result</a>
+</body>
+</html>

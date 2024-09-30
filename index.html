@@ -2,23 +2,32 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>URLパラメータの更新</title>
+    <title>業務選択画面</title>
+    <script>
+        async function loadTasks() {
+            const response = await fetch('tasks.json');
+            const tasks = await response.json();
+            const select = document.getElementById('taskSelect');
+            tasks.forEach(task => {
+                const option = document.createElement('option');
+                option.value = task.id;
+                option.textContent = task.name;
+                select.appendChild(option);
+            });
+        }
+
+        function goToCheckScreen() {
+            const selectedTask = document.getElementById('taskSelect').value;
+            localStorage.setItem('selectedTask', selectedTask);
+            window.location.href = 'check.html';
+        }
+
+        window.onload = loadTasks;
+    </script>
 </head>
 <body>
-    <button id="updateButton">URLを更新</button>
-
-    <script>
-        document.getElementById('updateButton').addEventListener('click', function() {
-            // 現在のURLを取得
-            let url = new URL(window.location.href);
-
-            // 新しいパラメータを追加または更新
-            url.searchParams.set('param1', 'newValue1');
-            url.searchParams.set('param2', 'newValue2');
-
-            // URLを更新
-            window.history.pushState({}, '', url);
-        });
-    </script>
+    <h1>業務選択画面</h1>
+    <select id="taskSelect"></select>
+    <button onclick="goToCheckScreen()">次へ</button>
 </body>
 </html>
