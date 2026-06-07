@@ -1,0 +1,74 @@
+div style="font-family: 'Noto Sans JP', sans-serif; color: #222222; background-color: #FFFFFF; padding: 32px; border: 1px solid #E0E0E0; max-width: 960px; margin: 0 auto;">
+
+  <div style="color: #888888; font-size: 10.5pt; text-align: left; margin-bottom: 12px;">
+    04 | 共通機能アーキテクチャ標準：例外処理とライフサイクル
+  </div>
+
+  <div style="font-size: 24pt; font-weight: bold; line-height: 1.4; margin-bottom: 32px; border-bottom: 2px solid #1976D2; padding-bottom: 16px;">
+    共通機能の呼び出しから事前の変数定義を全廃し、「正常時の1行受取」と「異常時の例外透過」に徹することで、利用側のバグを排除し障害調査を最短化する。
+  </div>
+
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="width: 45%; vertical-align: top; padding-right: 24px; border-right: 1px solid #E0E0E0;">
+        <div style="font-size: 14pt; font-weight: bold; color: #1976D2; margin-bottom: 16px;">
+          【実装標準】利用者のコード構造
+        </div>
+        
+        <div style="background-color: #E8F4FB; padding: 16px; border: 1px solid #1976D2; font-family: monospace; font-size: 11pt; line-height: 1.5;">
+          <span style="color: #888888;">// 1. try外での変数定義(null代入)は禁止</span><br>
+          try {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888888;">// 2. 宣言と受取を1行で完結</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bold; color: #D84315;">ReturnBean result = service.execute();</span><br>
+          <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888888;">// 正常系のみ子Beanを操作</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;ChildA a = result.getChildA();<br>
+          <br>
+          } catch (CommonSystemException e) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #888888;">// 3. 例外(e)をそのままログに渡す</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;logger.error("業務エラー", <span style="font-weight: bold; color: #D84315;">e</span>);<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;throw new AppExc("...", e);<br>
+          }
+        </div>
+      </td>
+
+      <td style="width: 55%; vertical-align: top; padding-left: 24px;">
+        <div style="font-size: 14pt; font-weight: bold; color: #1976D2; margin-bottom: 16px;">
+          【設計意図】裏側で機能する3つの自動化
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4px;">
+            ① メモリの無害化（ライフサイクル管理）
+          </div>
+          <div style="font-size: 11pt; line-height: 1.5;">
+            事前の変数定義を排除することで、異常発生時に「使われないnull変数」がスタックに滞留しない。<span style="font-weight: bold; color: #D84315;">不要な子Beanは即座にGC（ガベージコレクション）の対象</span>となり、NullPointerExceptionの芽を構造的に摘み取る。
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4px;">
+            ② ログの自動結合（例外チェーン）
+          </div>
+          <div style="font-size: 11pt; line-height: 1.5;">
+            エラーコードでの紐付け（相関ID検索）を廃止。キャッチした例外オブジェクトをログ出力に渡すだけで、<span style="font-weight: bold; color: #D84315;">利用側の業務コンテキストと、共通機能内部のスタックトレースが1つのログブロックとして自動連結</span>される。
+          </div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 12pt; font-weight: bold; margin-bottom: 4px;">
+            ③ 責務の完全な分離（カプセル化）
+          </div>
+          <div style="font-size: 11pt; line-height: 1.5;">
+            インスタンスの生成責任と、詳細エラーの出力責任を共通機能側に完全に隠蔽。利用者は「結果を使うこと」と「業務影響を記録すること」のみに専念できる。
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div style="margin-top: 32px; padding-top: 12px; border-top: 1px solid #E0E0E0; font-size: 9pt; color: #888888; text-align: right;">
+    対象: アプリケーション開発チーム ／ 前提: 共通機能は独自例外(CommonSystemException)をスローする設計とする
+  </div>
+
+</div>
